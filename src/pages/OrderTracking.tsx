@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -9,10 +8,10 @@ import { Home, ChefHat, Bike, Check, CheckCircle } from 'lucide-react';
 type OrderStatus = 'confirmed' | 'preparing' | 'delivering' | 'delivered';
 
 const steps = [
-  { id: 'confirmed', label: 'Order Confirmed', icon: CheckCircle, time: '12:30 PM' },
-  { id: 'preparing', label: 'Preparing', icon: ChefHat, time: '12:40 PM' },
-  { id: 'delivering', label: 'On the Way', icon: Bike, time: '1:05 PM' },
-  { id: 'delivered', label: 'Delivered', icon: Check, time: '1:25 PM' }
+  { id: 'confirmed', label: 'Pedido Confirmado', icon: CheckCircle, time: '12:30' },
+  { id: 'preparing', label: 'Preparando', icon: ChefHat, time: '12:40' },
+  { id: 'delivering', label: 'A Caminho', icon: Bike, time: '13:05' },
+  { id: 'delivered', label: 'Entregue', icon: Check, time: '13:25' }
 ];
 
 const OrderTracking: React.FC = () => {
@@ -20,7 +19,7 @@ const OrderTracking: React.FC = () => {
   const [progress, setProgress] = useState(25);
   const [estimatedTime, setEstimatedTime] = useState(45);
   
-  // Simulate order tracking progress
+  // Simular o progresso do rastreamento do pedido
   useEffect(() => {
     const interval = setInterval(() => {
       setEstimatedTime(prev => {
@@ -46,14 +45,14 @@ const OrderTracking: React.FC = () => {
     return () => clearInterval(interval);
   }, [currentStatus, estimatedTime]);
   
-  // Get current step index
+  // Obter índice do passo atual
   const currentStepIndex = steps.findIndex(step => step.id === currentStatus);
   
-  // Format time display
+  // Formatar exibição do tempo
   const formatTime = (minutes: number): string => {
-    if (minutes < 1) return 'Less than a minute';
-    if (minutes === 1) return '1 minute';
-    return `${minutes} minutes`;
+    if (minutes < 1) return 'Menos de um minuto';
+    if (minutes === 1) return '1 minuto';
+    return `${minutes} minutos`;
   };
   
   return (
@@ -61,19 +60,19 @@ const OrderTracking: React.FC = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Order Tracking</h1>
+        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Rastreamento do Pedido</h1>
         
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl font-bold text-foodfly-secondary">Order #FD38291</h2>
+            <h2 className="text-xl font-bold text-foodfly-secondary">Pedido #FD38291</h2>
             <span className="px-3 py-1 bg-foodfly-primary/10 text-foodfly-primary rounded-full text-sm font-medium">
-              {currentStatus === 'delivered' ? 'Delivered' : 'In Progress'}
+              {currentStatus === 'delivered' ? 'Entregue' : 'Em Andamento'}
             </span>
           </div>
           
           <div className="mb-8">
             <div className="flex justify-between mb-2">
-              <span className="text-sm text-foodfly-gray-medium">Progress</span>
+              <span className="text-sm text-foodfly-gray-medium">Progresso</span>
               <span className="text-sm font-medium">{progress}%</span>
             </div>
             <Progress value={progress} className="h-2" />
@@ -81,7 +80,7 @@ const OrderTracking: React.FC = () => {
           
           {currentStatus !== 'delivered' && (
             <div className="p-4 bg-foodfly-primary/10 rounded-lg mb-8">
-              <h3 className="font-medium text-foodfly-secondary mb-1">Estimated Delivery Time</h3>
+              <h3 className="font-medium text-foodfly-secondary mb-1">Tempo Estimado de Entrega</h3>
               <p className="text-foodfly-primary text-2xl font-bold">{formatTime(estimatedTime)}</p>
             </div>
           )}
@@ -98,7 +97,7 @@ const OrderTracking: React.FC = () => {
                   }`}>
                     <step.icon className="h-6 w-6" />
                     
-                    {/* Connector line */}
+                    {/* Linha conectora */}
                     {index < steps.length - 1 && (
                       <div className={`absolute top-12 left-1/2 w-0.5 h-16 -translate-x-1/2 ${
                         index < currentStepIndex ? 'bg-foodfly-primary' : 'bg-foodfly-gray-light'
@@ -123,15 +122,15 @@ const OrderTracking: React.FC = () => {
                     
                     {isCurrent && currentStatus !== 'delivered' && (
                       <p className="text-sm text-foodfly-primary mt-1">
-                        {currentStatus === 'confirmed' && 'Restaurant is confirming your order'}
-                        {currentStatus === 'preparing' && 'Chef is preparing your delicious meal'}
-                        {currentStatus === 'delivering' && 'Driver is on the way to your location'}
+                        {currentStatus === 'confirmed' && 'O restaurante está confirmando seu pedido'}
+                        {currentStatus === 'preparing' && 'O chef está preparando sua refeição deliciosa'}
+                        {currentStatus === 'delivering' && 'O entregador está a caminho da sua localização'}
                       </p>
                     )}
                     
                     {currentStatus === 'delivered' && index === steps.length - 1 && (
                       <p className="text-sm text-green-600 mt-1">
-                        Your order has been delivered. Enjoy your meal!
+                        Seu pedido foi entregue. Bom apetite!
                       </p>
                     )}
                   </div>
@@ -142,10 +141,10 @@ const OrderTracking: React.FC = () => {
           
           {currentStatus === 'delivered' && (
             <div className="mt-8 pt-6 border-t border-gray-200">
-              <h3 className="font-bold text-foodfly-secondary mb-4">How was your order?</h3>
+              <h3 className="font-bold text-foodfly-secondary mb-4">Como foi seu pedido?</h3>
               <div className="flex gap-2">
-                <Button className="bg-foodfly-primary hover:bg-foodfly-primary/90">Rate Your Order</Button>
-                <Button variant="outline">Need Help?</Button>
+                <Button className="bg-foodfly-primary hover:bg-foodfly-primary/90">Avaliar Pedido</Button>
+                <Button variant="outline">Precisa de Ajuda?</Button>
               </div>
             </div>
           )}
@@ -155,7 +154,7 @@ const OrderTracking: React.FC = () => {
           <Link to="/">
             <Button variant="outline" className="flex items-center">
               <Home className="h-4 w-4 mr-2" />
-              <span>Back to Home</span>
+              <span>Voltar para a Página Inicial</span>
             </Button>
           </Link>
         </div>
@@ -166,20 +165,20 @@ const OrderTracking: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-4 md:mb-0">
               <h2 className="font-bold text-xl mb-2">FoodieFly</h2>
-              <p className="text-sm text-foodfly-gray-light">Order delicious food online!</p>
+              <p className="text-sm text-foodfly-gray-light">Peça comida deliciosa online!</p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Quick Links</h3>
+              <h3 className="font-bold mb-2">Links Rápidos</h3>
               <ul className="text-sm space-y-1">
-                <li><a href="#" className="hover:text-foodfly-primary">About Us</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Contact</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Sobre Nós</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Contato</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Termos de Serviço</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Política de Privacidade</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700">
-            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. All rights reserved.</p>
+            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

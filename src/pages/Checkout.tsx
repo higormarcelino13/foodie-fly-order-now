@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -46,7 +45,7 @@ const Checkout: React.FC = () => {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Redirect to home if cart is empty
+  // Redirecionar para a página inicial se o carrinho estiver vazio
   React.useEffect(() => {
     if (cartItems.length === 0) {
       navigate('/');
@@ -57,7 +56,7 @@ const Checkout: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user types
+    // Limpar erro quando o usuário digita
     if (formErrors[name]) {
       setFormErrors(prev => {
         const newErrors = { ...prev };
@@ -70,40 +69,40 @@ const Checkout: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
     
-    // Required fields
+    // Campos obrigatórios
     const requiredFields = ['fullName', 'email', 'phone', 'address', 'city', 'zipCode', 'cardNumber', 'cardExpiry', 'cardCvc'];
     requiredFields.forEach(field => {
       if (!formData[field as keyof FormData]) {
-        errors[field] = 'This field is required';
+        errors[field] = 'Este campo é obrigatório';
       }
     });
     
-    // Email validation
+    // Validação de e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = 'Por favor, insira um endereço de e-mail válido';
     }
     
-    // Phone validation
+    // Validação de telefone
     const phoneRegex = /^\d{10}$/;
     if (formData.phone && !phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      errors.phone = 'Please enter a valid 10-digit phone number';
+      errors.phone = 'Por favor, insira um número de telefone válido com 10 dígitos';
     }
     
-    // Card validation
+    // Validação do cartão
     const cardNumberRegex = /^\d{16}$/;
     if (formData.cardNumber && !cardNumberRegex.test(formData.cardNumber.replace(/\D/g, ''))) {
-      errors.cardNumber = 'Please enter a valid 16-digit card number';
+      errors.cardNumber = 'Por favor, insira um número de cartão válido com 16 dígitos';
     }
     
     const cardExpiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
     if (formData.cardExpiry && !cardExpiryRegex.test(formData.cardExpiry)) {
-      errors.cardExpiry = 'Please enter a valid expiry date (MM/YY)';
+      errors.cardExpiry = 'Por favor, insira uma data de validade válida (MM/AA)';
     }
     
     const cardCvcRegex = /^\d{3,4}$/;
     if (formData.cardCvc && !cardCvcRegex.test(formData.cardCvc)) {
-      errors.cardCvc = 'Please enter a valid CVC code';
+      errors.cardCvc = 'Por favor, insira um código CVC válido';
     }
     
     setFormErrors(errors);
@@ -114,15 +113,15 @@ const Checkout: React.FC = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      toast.error("Please correct the errors in the form");
+      toast.error("Por favor, corrija os erros no formulário");
       return;
     }
     
     setIsSubmitting(true);
     
-    // Simulate order processing
+    // Simular processamento do pedido
     setTimeout(() => {
-      toast.success("Order placed successfully!");
+      toast.success("Pedido realizado com sucesso!");
       clearCart();
       navigate('/tracking');
       setIsSubmitting(false);
@@ -141,26 +140,26 @@ const Checkout: React.FC = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/cart" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
-          <span>Back to Cart</span>
+          <span>Voltar para o Carrinho</span>
         </Link>
         
-        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Checkout</h1>
+        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Finalizar Pedido</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Checkout Form */}
+          {/* Formulário de Checkout */}
           <div className="lg:w-2/3">
             <form onSubmit={handleSubmit}>
-              {/* Delivery Information */}
+              {/* Informações de Entrega */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center mb-4">
                   <MapPin className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Delivery Information</h2>
+                  <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Entrega</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label htmlFor="fullName" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Full Name
+                      Nome Completo
                     </label>
                     <Input
                       id="fullName"
@@ -179,7 +178,7 @@ const Checkout: React.FC = () => {
                   
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Email
+                      E-mail
                     </label>
                     <Input
                       id="email"
@@ -199,7 +198,7 @@ const Checkout: React.FC = () => {
                   
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Phone Number
+                      Telefone
                     </label>
                     <Input
                       id="phone"
@@ -218,7 +217,7 @@ const Checkout: React.FC = () => {
                   
                   <div className="md:col-span-2">
                     <label htmlFor="address" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Delivery Address
+                      Endereço de Entrega
                     </label>
                     <Input
                       id="address"
@@ -237,7 +236,7 @@ const Checkout: React.FC = () => {
                   
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      City
+                      Cidade
                     </label>
                     <Input
                       id="city"
@@ -256,7 +255,7 @@ const Checkout: React.FC = () => {
                   
                   <div>
                     <label htmlFor="zipCode" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      ZIP Code
+                      CEP
                     </label>
                     <Input
                       id="zipCode"
@@ -275,12 +274,12 @@ const Checkout: React.FC = () => {
                   
                   <div className="md:col-span-2">
                     <label htmlFor="notes" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Delivery Notes (optional)
+                      Observações de Entrega (opcional)
                     </label>
                     <Textarea
                       id="notes"
                       name="notes"
-                      placeholder="E.g., Apartment number, gate code, or delivery instructions"
+                      placeholder="Ex.: Número do apartamento, código do portão ou instruções de entrega"
                       value={formData.notes}
                       onChange={handleChange}
                     />
@@ -288,17 +287,17 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
               
-              {/* Payment Information */}
+              {/* Informações de Pagamento */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center mb-4">
                   <CreditCard className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Payment Information</h2>
+                  <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Pagamento</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label htmlFor="cardNumber" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Card Number
+                      Número do Cartão
                     </label>
                     <Input
                       id="cardNumber"
@@ -318,12 +317,12 @@ const Checkout: React.FC = () => {
                   
                   <div>
                     <label htmlFor="cardExpiry" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Expiry Date
+                      Data de Validade
                     </label>
                     <Input
                       id="cardExpiry"
                       name="cardExpiry"
-                      placeholder="MM/YY"
+                      placeholder="MM/AA"
                       value={formData.cardExpiry}
                       onChange={handleChange}
                       className={formErrors.cardExpiry ? 'border-red-500' : ''}
@@ -358,49 +357,49 @@ const Checkout: React.FC = () => {
                 </div>
               </div>
               
-              {/* Delivery Time */}
+              {/* Tempo de Entrega */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center mb-4">
                   <Clock className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Delivery Time</h2>
+                  <h2 className="text-xl font-bold text-foodfly-secondary">Tempo de Entrega</h2>
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <div className="flex-1 border border-foodfly-primary rounded-lg p-4 text-center bg-foodfly-primary/5">
-                    <p className="font-medium">As soon as possible</p>
+                    <p className="font-medium">O mais rápido possível</p>
                     <p className="text-sm text-foodfly-gray-medium">30-45 min</p>
                   </div>
                   
                   <div className="flex-1 border border-gray-200 rounded-lg p-4 text-center">
-                    <p className="font-medium">Schedule for later</p>
-                    <p className="text-sm text-foodfly-gray-medium">Choose a time</p>
+                    <p className="font-medium">Agendar para depois</p>
+                    <p className="text-sm text-foodfly-gray-medium">Escolha um horário</p>
                   </div>
                 </div>
               </div>
               
               <div className="lg:hidden mb-6">
-                <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between">
                       <span className="text-foodfly-gray-medium">Subtotal</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                      <span>R$ {subtotal.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-foodfly-gray-medium">Delivery Fee</span>
-                      <span>${deliveryFee.toFixed(2)}</span>
+                      <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
+                      <span>R$ {deliveryFee.toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between">
-                      <span className="text-foodfly-gray-medium">Service Fee</span>
-                      <span>${serviceFee.toFixed(2)}</span>
+                      <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
+                      <span>R$ {serviceFee.toFixed(2)}</span>
                     </div>
                     
                     <div className="border-t pt-3 mt-3">
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>R$ {total.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -412,15 +411,15 @@ const Checkout: React.FC = () => {
                 className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90 lg:hidden"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+                {isSubmitting ? 'Processando...' : `Pagar R$ ${total.toFixed(2)}`}
               </Button>
             </form>
           </div>
           
-          {/* Order Summary */}
+          {/* Resumo do Pedido */}
           <div className="lg:w-1/3 hidden lg:block">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Order Summary</h2>
+              <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
               
               <div className="mb-4">
                 {cartItems.map(item => (
@@ -431,7 +430,7 @@ const Checkout: React.FC = () => {
                       </span>
                       <span className="text-foodfly-secondary">{item.name}</span>
                     </div>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -439,23 +438,23 @@ const Checkout: React.FC = () => {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-foodfly-gray-medium">Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-foodfly-gray-medium">Delivery Fee</span>
-                  <span>${deliveryFee.toFixed(2)}</span>
+                  <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
+                  <span>R$ {deliveryFee.toFixed(2)}</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-foodfly-gray-medium">Service Fee</span>
-                  <span>${serviceFee.toFixed(2)}</span>
+                  <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
+                  <span>R$ {serviceFee.toFixed(2)}</span>
                 </div>
                 
                 <div className="border-t pt-3 mt-3">
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>R$ {total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -466,7 +465,7 @@ const Checkout: React.FC = () => {
                 disabled={isSubmitting}
                 onClick={handleSubmit}
               >
-                {isSubmitting ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+                {isSubmitting ? 'Processando...' : `Pagar R$ ${total.toFixed(2)}`}
               </Button>
             </div>
           </div>
@@ -478,20 +477,20 @@ const Checkout: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-4 md:mb-0">
               <h2 className="font-bold text-xl mb-2">FoodieFly</h2>
-              <p className="text-sm text-foodfly-gray-light">Order delicious food online!</p>
+              <p className="text-sm text-foodfly-gray-light">Peça comida deliciosa online!</p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Quick Links</h3>
+              <h3 className="font-bold mb-2">Links Rápidos</h3>
               <ul className="text-sm space-y-1">
-                <li><a href="#" className="hover:text-foodfly-primary">About Us</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Contact</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Sobre Nós</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Contato</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Termos de Serviço</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Política de Privacidade</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700">
-            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. All rights reserved.</p>
+            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

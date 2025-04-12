@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/contexts/CartContext';
@@ -50,7 +49,7 @@ const Header: React.FC = () => {
             <span className="font-bold text-2xl text-foodfly-primary">FoodieFly</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Navegação Desktop */}
           <div className="hidden md:flex items-center space-x-6">
             <form onSubmit={handleSearch} className="relative w-64">
               <Input
@@ -119,7 +118,7 @@ const Header: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Botão do Menu Mobile */}
           <div className="md:hidden flex items-center">
             <Button variant="ghost" size="icon" onClick={toggleMenu} className="text-foodfly-secondary">
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -127,7 +126,7 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Menu Mobile */}
         {isMenuOpen && (
           <div className="md:hidden mt-4 pb-2">
             <form onSubmit={handleSearch} className="relative mb-4">

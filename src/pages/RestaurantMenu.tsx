@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -21,7 +20,7 @@ const RestaurantMenu: React.FC = () => {
       const items = getMenuItemsByRestaurantId(id);
       setMenuItems(items);
       
-      // Set the initially selected category to the first one
+      // Define a categoria inicialmente selecionada como a primeira
       if (items.length > 0) {
         const categories = [...new Set(items.map(item => item.category))];
         setSelectedCategory(categories[0]);
@@ -34,19 +33,19 @@ const RestaurantMenu: React.FC = () => {
       <div>
         <Header />
         <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Restaurant not found</h2>
+          <h2 className="text-2xl font-bold mb-4">Restaurante não encontrado</h2>
           <Link to="/">
-            <Button>Back to Home</Button>
+            <Button>Voltar para a Página Inicial</Button>
           </Link>
         </div>
       </div>
     );
   }
   
-  // Get unique categories
+  // Obter categorias únicas
   const categories = [...new Set(menuItems.map(item => item.category))];
   
-  // Filter menu items by selected category
+  // Filtrar itens do menu por categoria selecionada
   const filteredItems = selectedCategory 
     ? menuItems.filter(item => item.category === selectedCategory)
     : menuItems;
@@ -58,7 +57,7 @@ const RestaurantMenu: React.FC = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
-          <span>Back to restaurants</span>
+          <span>Voltar para restaurantes</span>
         </Link>
         
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
@@ -69,7 +68,7 @@ const RestaurantMenu: React.FC = () => {
               className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Restaurant+Image";
+                target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Imagem+Restaurante";
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
@@ -99,9 +98,9 @@ const RestaurantMenu: React.FC = () => {
         </div>
         
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Categories sidebar */}
+          {/* Barra lateral de categorias */}
           <div className="md:w-1/4">
-            <h2 className="text-xl font-bold mb-4 text-foodfly-secondary">Menu</h2>
+            <h2 className="text-xl font-bold mb-4 text-foodfly-secondary">Cardápio</h2>
             <div className="bg-white rounded-lg shadow-md p-4">
               {categories.map(category => (
                 <Button
@@ -116,7 +115,7 @@ const RestaurantMenu: React.FC = () => {
             </div>
           </div>
           
-          {/* Menu items */}
+          {/* Itens do cardápio */}
           <div className="md:w-3/4">
             <h2 className="text-xl font-bold mb-4 text-foodfly-secondary">
               {selectedCategory}
@@ -134,7 +133,7 @@ const RestaurantMenu: React.FC = () => {
             
             {filteredItems.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-foodfly-gray-medium">No items found in this category.</p>
+                <p className="text-foodfly-gray-medium">Nenhum item encontrado nesta categoria.</p>
               </div>
             )}
           </div>
@@ -146,20 +145,20 @@ const RestaurantMenu: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-4 md:mb-0">
               <h2 className="font-bold text-xl mb-2">FoodieFly</h2>
-              <p className="text-sm text-foodfly-gray-light">Order delicious food online!</p>
+              <p className="text-sm text-foodfly-gray-light">Peça comida deliciosa online!</p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Quick Links</h3>
+              <h3 className="font-bold mb-2">Links Rápidos</h3>
               <ul className="text-sm space-y-1">
-                <li><a href="#" className="hover:text-foodfly-primary">About Us</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Contact</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Sobre Nós</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Contato</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Termos de Serviço</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Política de Privacidade</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700">
-            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. All rights reserved.</p>
+            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>

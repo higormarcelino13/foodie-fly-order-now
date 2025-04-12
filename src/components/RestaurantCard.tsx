@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Star, MapPin } from 'lucide-react';
@@ -17,7 +16,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
           alt={restaurant.name} 
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Fallback image if the restaurant image doesn't load
+            // Imagem de fallback se a imagem do restaurante não carregar
             const target = e.target as HTMLImageElement;
             target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Restaurant+Image";
           }}
@@ -36,7 +35,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
           <Clock className="h-4 w-4 mr-1" />
           <span>{restaurant.deliveryTime}</span>
           <span className="mx-2">•</span>
-          <span>${restaurant.deliveryFee.toFixed(2)} delivery</span>
+          <span>R$ {restaurant.deliveryFee.toFixed(2)} delivery</span>
         </div>
         
         <div className="flex items-center text-sm text-foodfly-gray-medium">

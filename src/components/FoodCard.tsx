@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,7 +35,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
       quantity
     });
     
-    // Reset quantity after adding to cart
+    // Resetar quantidade após adicionar ao carrinho
     setQuantity(1);
   };
 
@@ -49,7 +48,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
             alt={item.name} 
             className="w-full h-full object-cover"
             onError={(e) => {
-              // Fallback image if the food image doesn't load
+              // Imagem de fallback se a imagem do item não carregar
               const target = e.target as HTMLImageElement;
               target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Food+Item";
             }}
@@ -61,7 +60,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
           <p className="text-foodfly-gray-medium text-sm mb-2 flex-grow">{item.description}</p>
           
           <div className="flex items-center justify-between mt-2">
-            <p className="font-bold text-foodfly-secondary">${item.price.toFixed(2)}</p>
+            <p className="font-bold text-foodfly-secondary">R$ {item.price.toFixed(2)}</p>
             
             <div className="flex items-center">
               <div className="flex items-center border rounded-l-lg mr-2">

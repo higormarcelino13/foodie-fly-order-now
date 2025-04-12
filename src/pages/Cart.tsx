@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -14,7 +13,7 @@ const Cart: React.FC = () => {
     navigate('/checkout');
   };
   
-  // Group items by restaurant
+  // Agrupar itens por restaurante
   const itemsByRestaurant = cartItems.reduce((acc, item) => {
     if (!acc[item.restaurantId]) {
       acc[item.restaurantId] = {
@@ -38,25 +37,25 @@ const Cart: React.FC = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
-          <span>Continue Shopping</span>
+          <span>Continuar Comprando</span>
         </Link>
         
-        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Your Cart</h1>
+        <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Seu Carrinho</h1>
         
         {cartItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-foodfly-gray-medium" />
-            <h2 className="text-2xl font-bold text-foodfly-secondary mb-2">Your cart is empty</h2>
-            <p className="text-foodfly-gray-medium mb-6">Add some delicious food to get started!</p>
+            <h2 className="text-2xl font-bold text-foodfly-secondary mb-2">Seu carrinho está vazio</h2>
+            <p className="text-foodfly-gray-medium mb-6">Adicione algumas comidas deliciosas para começar!</p>
             <Link to="/">
               <Button className="bg-foodfly-primary hover:bg-foodfly-primary/90">
-                Browse Restaurants
+                Explorar Restaurantes
               </Button>
             </Link>
           </div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* Cart Items */}
+            {/* Itens do Carrinho */}
             <div className="lg:w-2/3">
               {Object.values(itemsByRestaurant).map(({ restaurantName, items }) => (
                 <div key={restaurantName} className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -74,7 +73,7 @@ const Cart: React.FC = () => {
                             className="w-full h-full object-cover rounded-md"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Food+Item";
+                              target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Item+Comida";
                             }}
                           />
                         </div>
@@ -82,7 +81,7 @@ const Cart: React.FC = () => {
                         <div className="sm:ml-4 flex-1">
                           <div className="flex justify-between">
                             <h3 className="font-medium text-foodfly-secondary">{item.name}</h3>
-                            <p className="font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                            <p className="font-bold">R$ {(item.price * item.quantity).toFixed(2)}</p>
                           </div>
                           
                           <p className="text-sm text-foodfly-gray-medium mb-4">{item.description}</p>
@@ -118,7 +117,7 @@ const Cart: React.FC = () => {
                               onClick={() => removeFromCart(item.id)}
                             >
                               <Trash2 className="h-4 w-4 mr-1" />
-                              <span>Remove</span>
+                              <span>Remover</span>
                             </Button>
                           </div>
                         </div>
@@ -134,36 +133,36 @@ const Cart: React.FC = () => {
                   className="text-red-500 border-red-500 hover:bg-red-50"
                   onClick={clearCart}
                 >
-                  Clear Cart
+                  Limpar Carrinho
                 </Button>
               </div>
             </div>
             
-            {/* Order Summary */}
+            {/* Resumo do Pedido */}
             <div className="lg:w-1/3">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-                <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-foodfly-gray-medium">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>R$ {subtotal.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-foodfly-gray-medium">Delivery Fee</span>
-                    <span>${deliveryFee.toFixed(2)}</span>
+                    <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
+                    <span>R$ {deliveryFee.toFixed(2)}</span>
                   </div>
                   
                   <div className="flex justify-between">
-                    <span className="text-foodfly-gray-medium">Service Fee</span>
-                    <span>${serviceFee.toFixed(2)}</span>
+                    <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
+                    <span>R$ {serviceFee.toFixed(2)}</span>
                   </div>
                   
                   <div className="border-t pt-3 mt-3">
                     <div className="flex justify-between font-bold">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>R$ {total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -172,7 +171,7 @@ const Cart: React.FC = () => {
                   className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90"
                   onClick={handleCheckout}
                 >
-                  Proceed to Checkout
+                  Finalizar Pedido
                 </Button>
               </div>
             </div>
@@ -185,20 +184,20 @@ const Cart: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between">
             <div className="mb-4 md:mb-0">
               <h2 className="font-bold text-xl mb-2">FoodieFly</h2>
-              <p className="text-sm text-foodfly-gray-light">Order delicious food online!</p>
+              <p className="text-sm text-foodfly-gray-light">Peça comida deliciosa online!</p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Quick Links</h3>
+              <h3 className="font-bold mb-2">Links Rápidos</h3>
               <ul className="text-sm space-y-1">
-                <li><a href="#" className="hover:text-foodfly-primary">About Us</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Contact</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Sobre Nós</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Contato</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Termos de Serviço</a></li>
+                <li><a href="#" className="hover:text-foodfly-primary">Política de Privacidade</a></li>
               </ul>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-700">
-            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. All rights reserved.</p>
+            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
