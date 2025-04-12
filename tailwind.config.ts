@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,15 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+                foodfly: {
+                    primary: '#FF5A1F',
+                    secondary: '#1F2937',
+                    accent: '#FBBF24',
+                    light: '#F9FAFB',
+                    'gray-light': '#F3F4F6',
+                    'gray-medium': '#9CA3AF'
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
