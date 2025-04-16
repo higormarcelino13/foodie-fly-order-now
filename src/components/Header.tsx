@@ -24,8 +24,6 @@ const Header: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Em um app real, isso navegaria para os resultados da pesquisa
-      // Por enquanto, apenas navega para a página inicial
       navigate('/');
       setSearchQuery('');
     }
@@ -139,19 +137,19 @@ const Header: React.FC = () => {
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foodfly-gray-medium h-4 w-4" />
             </form>
-            
+
             <div className="flex flex-col space-y-2">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="flex items-center text-foodfly-secondary py-2 px-4 rounded hover:bg-foodfly-gray-light"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <Home className="h-5 w-5 mr-2" />
                 <span>Início</span>
               </Link>
-              
-              <Link 
-                to="/cart" 
+
+              <Link
+                to="/cart"
                 className="flex items-center text-foodfly-secondary py-2 px-4 rounded hover:bg-foodfly-gray-light"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -166,15 +164,15 @@ const Header: React.FC = () => {
 
               {isAuthenticated ? (
                 <>
-                  <Link 
-                    to="/profile" 
+                  <Link
+                    to="/profile"
                     className="flex items-center text-foodfly-secondary py-2 px-4 rounded hover:bg-foodfly-gray-light"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="h-5 w-5 mr-2" />
                     <span>Meu Perfil</span>
                   </Link>
-                  <button 
+                  <button
                     className="flex items-center text-destructive py-2 px-4 rounded hover:bg-foodfly-gray-light text-left"
                     onClick={() => {
                       handleLogout();
@@ -186,8 +184,8 @@ const Header: React.FC = () => {
                   </button>
                 </>
               ) : (
-                <Link 
-                  to="/login" 
+                <Link
+                  to="/login"
                   className="flex items-center text-foodfly-secondary py-2 px-4 rounded hover:bg-foodfly-gray-light"
                   onClick={() => setIsMenuOpen(false)}
                 >

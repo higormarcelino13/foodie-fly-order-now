@@ -11,12 +11,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
   return (
     <Link to={`/restaurant/${restaurant.id}`} className="restaurant-card block">
       <div className="relative h-40 overflow-hidden">
-        <img 
-          src={restaurant.image} 
-          alt={restaurant.name} 
+        <img
+          src={restaurant.image}
+          alt={restaurant.name}
           className="w-full h-full object-cover"
           onError={(e) => {
-            // Imagem de fallback se a imagem do restaurante não carregar
             const target = e.target as HTMLImageElement;
             target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Restaurant+Image";
           }}
@@ -26,18 +25,18 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
           <span>{restaurant.rating}</span>
         </div>
       </div>
-      
+
       <div className="p-4">
         <h3 className="font-bold text-lg text-foodfly-secondary">{restaurant.name}</h3>
         <p className="text-foodfly-gray-medium text-sm mb-2">{restaurant.cuisine}</p>
-        
+
         <div className="flex items-center text-sm text-foodfly-secondary mb-1">
           <Clock className="h-4 w-4 mr-1" />
           <span>{restaurant.deliveryTime}</span>
           <span className="mx-2">•</span>
           <span>R$ {restaurant.deliveryFee.toFixed(2)} delivery</span>
         </div>
-        
+
         <div className="flex items-center text-sm text-foodfly-gray-medium">
           <MapPin className="h-4 w-4 mr-1" />
           <span>{restaurant.address}</span>

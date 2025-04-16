@@ -84,7 +84,6 @@ export const restaurants: Restaurant[] = [
 ];
 
 export const menuItems: MenuItem[] = [
-  // Itens do Palácio do Hambúrguer
   {
     id: "bp1",
     restaurantId: "r1",
@@ -136,7 +135,6 @@ export const menuItems: MenuItem[] = [
     popular: false
   },
 
-  // Itens do Paraíso da Pizza
   {
     id: "ph1",
     restaurantId: "r2",
@@ -188,7 +186,6 @@ export const menuItems: MenuItem[] = [
     popular: false
   },
 
-  // Itens do Delícias do Sushi
   {
     id: "sd1",
     restaurantId: "r3",
@@ -241,22 +238,18 @@ export const menuItems: MenuItem[] = [
   }
 ];
 
-// Função auxiliar para obter restaurante por ID
 export const getRestaurantById = (id: string): Restaurant | undefined => {
   return restaurants.find(restaurant => restaurant.id === id);
 };
 
-// Função auxiliar para obter itens do menu por ID do restaurante
 export const getMenuItemsByRestaurantId = (restaurantId: string): MenuItem[] => {
   return menuItems.filter(item => item.restaurantId === restaurantId);
 };
 
-// Função auxiliar para obter item do menu por ID
 export const getMenuItemById = (id: string): MenuItem | undefined => {
   return menuItems.find(item => item.id === id);
 };
 
-// Função auxiliar para obter itens populares do menu
 export const getPopularMenuItems = (): MenuItem[] => {
   return menuItems.filter(item => item.popular);
 };

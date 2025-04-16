@@ -28,7 +28,7 @@ interface FormErrors {
 const Checkout: React.FC = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -41,22 +41,20 @@ const Checkout: React.FC = () => {
     cardCvc: '',
     notes: ''
   });
-  
+
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Redirecionar para a página inicial se o carrinho estiver vazio
+
   React.useEffect(() => {
     if (cartItems.length === 0) {
       navigate('/');
     }
   }, [cartItems, navigate]);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Limpar erro quando o usuário digita
+
     if (formErrors[name]) {
       setFormErrors(prev => {
         const newErrors = { ...prev };
@@ -65,61 +63,56 @@ const Checkout: React.FC = () => {
       });
     }
   };
-  
+
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
-    
-    // Campos obrigatórios
+
     const requiredFields = ['fullName', 'email', 'phone', 'address', 'city', 'zipCode', 'cardNumber', 'cardExpiry', 'cardCvc'];
     requiredFields.forEach(field => {
       if (!formData[field as keyof FormData]) {
         errors[field] = 'Este campo é obrigatório';
       }
     });
-    
-    // Validação de e-mail
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       errors.email = 'Por favor, insira um endereço de e-mail válido';
     }
-    
-    // Validação de telefone
+
     const phoneRegex = /^\d{10}$/;
     if (formData.phone && !phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
       errors.phone = 'Por favor, insira um número de telefone válido com 10 dígitos';
     }
-    
-    // Validação do cartão
+
     const cardNumberRegex = /^\d{16}$/;
     if (formData.cardNumber && !cardNumberRegex.test(formData.cardNumber.replace(/\D/g, ''))) {
       errors.cardNumber = 'Por favor, insira um número de cartão válido com 16 dígitos';
     }
-    
+
     const cardExpiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
     if (formData.cardExpiry && !cardExpiryRegex.test(formData.cardExpiry)) {
       errors.cardExpiry = 'Por favor, insira uma data de validade válida (MM/AA)';
     }
-    
+
     const cardCvcRegex = /^\d{3,4}$/;
     if (formData.cardCvc && !cardCvcRegex.test(formData.cardCvc)) {
       errors.cardCvc = 'Por favor, insira um código CVC válido';
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error("Por favor, corrija os erros no formulário");
       return;
     }
-    
+
     setIsSubmitting(true);
-    
-    // Simular processamento do pedido
+
     setTimeout(() => {
       toast.success("Pedido realizado com sucesso!");
       clearCart();
@@ -127,24 +120,24 @@ const Checkout: React.FC = () => {
       setIsSubmitting(false);
     }, 2000);
   };
-  
+
   const subtotal = getCartTotal();
   const deliveryFee = 2.99;
   const serviceFee = 1.99;
   const total = subtotal + deliveryFee + serviceFee;
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/cart" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
           <span>Voltar para o Carrinho</span>
         </Link>
-        
+
         <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Finalizar Pedido</h1>
-        
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Formulário de Checkout */}
           <div className="lg:w-2/3">
@@ -155,7 +148,7 @@ const Checkout: React.FC = () => {
                   <MapPin className="h-5 w-5 text-foodfly-primary mr-2" />
                   <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Entrega</h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label htmlFor="fullName" className="block text-sm font-medium text-foodfly-secondary mb-1">
@@ -175,7 +168,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       E-mail
@@ -195,7 +188,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       Telefone
@@ -214,7 +207,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label htmlFor="address" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       Endereço de Entrega
@@ -233,7 +226,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       Cidade
@@ -252,7 +245,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="zipCode" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       CEP
@@ -271,7 +264,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label htmlFor="notes" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       Observações de Entrega (opcional)
@@ -286,14 +279,14 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Informações de Pagamento */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center mb-4">
                   <CreditCard className="h-5 w-5 text-foodfly-primary mr-2" />
                   <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Pagamento</h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label htmlFor="cardNumber" className="block text-sm font-medium text-foodfly-secondary mb-1">
@@ -314,7 +307,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="cardExpiry" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       Data de Validade
@@ -334,7 +327,7 @@ const Checkout: React.FC = () => {
                       </p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="cardCvc" className="block text-sm font-medium text-foodfly-secondary mb-1">
                       CVC
@@ -356,27 +349,27 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Tempo de Entrega */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center mb-4">
                   <Clock className="h-5 w-5 text-foodfly-primary mr-2" />
                   <h2 className="text-xl font-bold text-foodfly-secondary">Tempo de Entrega</h2>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <div className="flex-1 border border-foodfly-primary rounded-lg p-4 text-center bg-foodfly-primary/5">
                     <p className="font-medium">O mais rápido possível</p>
                     <p className="text-sm text-foodfly-gray-medium">30-45 min</p>
                   </div>
-                  
+
                   <div className="flex-1 border border-gray-200 rounded-lg p-4 text-center">
                     <p className="font-medium">Agendar para depois</p>
                     <p className="text-sm text-foodfly-gray-medium">Escolha um horário</p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="lg:hidden mb-6">
                 <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
                 <div className="bg-white rounded-lg shadow-md p-6">
@@ -385,17 +378,17 @@ const Checkout: React.FC = () => {
                       <span className="text-foodfly-gray-medium">Subtotal</span>
                       <span>R$ {subtotal.toFixed(2)}</span>
                     </div>
-                    
+
                     <div className="flex justify-between">
                       <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
                       <span>R$ {deliveryFee.toFixed(2)}</span>
                     </div>
-                    
+
                     <div className="flex justify-between">
                       <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
                       <span>R$ {serviceFee.toFixed(2)}</span>
                     </div>
-                    
+
                     <div className="border-t pt-3 mt-3">
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
@@ -405,9 +398,9 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90 lg:hidden"
                 disabled={isSubmitting}
               >
@@ -415,12 +408,12 @@ const Checkout: React.FC = () => {
               </Button>
             </form>
           </div>
-          
+
           {/* Resumo do Pedido */}
           <div className="lg:w-1/3 hidden lg:block">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
               <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
-              
+
               <div className="mb-4">
                 {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between py-2">
@@ -434,23 +427,23 @@ const Checkout: React.FC = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-foodfly-gray-medium">Subtotal</span>
                   <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
                   <span>R$ {deliveryFee.toFixed(2)}</span>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
                   <span>R$ {serviceFee.toFixed(2)}</span>
                 </div>
-                
+
                 <div className="border-t pt-3 mt-3">
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
@@ -458,9 +451,9 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90"
                 disabled={isSubmitting}
                 onClick={handleSubmit}
@@ -471,7 +464,7 @@ const Checkout: React.FC = () => {
           </div>
         </div>
       </main>
-      
+
       <footer className="bg-foodfly-secondary text-white py-6 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">

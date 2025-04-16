@@ -8,12 +8,11 @@ import { Plus, Minus, Trash2, ChevronLeft, ShoppingBag } from 'lucide-react';
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
-  
+
   const handleCheckout = () => {
     navigate('/checkout');
   };
-  
-  // Agrupar itens por restaurante
+
   const itemsByRestaurant = cartItems.reduce((acc, item) => {
     if (!acc[item.restaurantId]) {
       acc[item.restaurantId] = {
@@ -24,24 +23,24 @@ const Cart: React.FC = () => {
     acc[item.restaurantId].items.push(item);
     return acc;
   }, {} as Record<string, { restaurantName: string; items: typeof cartItems }>);
-  
+
   const subtotal = getCartTotal();
   const deliveryFee = subtotal > 0 ? 2.99 : 0;
   const serviceFee = subtotal > 0 ? 1.99 : 0;
   const total = subtotal + deliveryFee + serviceFee;
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
           <span>Continuar Comprando</span>
         </Link>
-        
+
         <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Seu Carrinho</h1>
-        
+
         {cartItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <ShoppingBag className="h-16 w-16 mx-auto mb-4 text-foodfly-gray-medium" />
@@ -62,14 +61,14 @@ const Cart: React.FC = () => {
                   <h2 className="text-xl font-bold text-foodfly-secondary mb-4">
                     {restaurantName}
                   </h2>
-                  
+
                   <div className="divide-y">
                     {items.map(item => (
                       <div key={item.id} className="py-4 flex flex-col sm:flex-row">
                         <div className="sm:w-24 sm:h-24 h-32 mb-4 sm:mb-0">
-                          <img 
-                            src={item.image} 
-                            alt={item.name} 
+                          <img
+                            src={item.image}
+                            alt={item.name}
                             className="w-full h-full object-cover rounded-md"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -77,42 +76,42 @@ const Cart: React.FC = () => {
                             }}
                           />
                         </div>
-                        
+
                         <div className="sm:ml-4 flex-1">
                           <div className="flex justify-between">
                             <h3 className="font-medium text-foodfly-secondary">{item.name}</h3>
                             <p className="font-bold">R$ {(item.price * item.quantity).toFixed(2)}</p>
                           </div>
-                          
+
                           <p className="text-sm text-foodfly-gray-medium mb-4">{item.description}</p>
-                          
+
                           <div className="flex justify-between items-center">
                             <div className="flex items-center border rounded-lg">
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 className="h-8 w-8 rounded-l-lg"
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                 disabled={item.quantity <= 1}
                               >
                                 <Minus className="h-4 w-4" />
                               </Button>
-                              
+
                               <span className="w-8 text-center">{item.quantity}</span>
-                              
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
+
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 className="h-8 w-8 rounded-r-lg"
                                 onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               >
                                 <Plus className="h-4 w-4" />
                               </Button>
                             </div>
-                            
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               className="text-red-500 hover:text-red-700"
                               onClick={() => removeFromCart(item.id)}
                             >
@@ -126,10 +125,10 @@ const Cart: React.FC = () => {
                   </div>
                 </div>
               ))}
-              
+
               <div className="text-right mb-6">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="text-red-500 border-red-500 hover:bg-red-50"
                   onClick={clearCart}
                 >
@@ -137,28 +136,28 @@ const Cart: React.FC = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Resumo do Pedido */}
             <div className="lg:w-1/3">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
                 <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
-                
+
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-foodfly-gray-medium">Subtotal</span>
                     <span>R$ {subtotal.toFixed(2)}</span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
                     <span>R$ {deliveryFee.toFixed(2)}</span>
                   </div>
-                  
+
                   <div className="flex justify-between">
                     <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
                     <span>R$ {serviceFee.toFixed(2)}</span>
                   </div>
-                  
+
                   <div className="border-t pt-3 mt-3">
                     <div className="flex justify-between font-bold">
                       <span>Total</span>
@@ -166,8 +165,8 @@ const Cart: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
-                <Button 
+
+                <Button
                   className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90"
                   onClick={handleCheckout}
                 >
@@ -178,7 +177,7 @@ const Cart: React.FC = () => {
           </div>
         )}
       </main>
-      
+
       <footer className="bg-foodfly-secondary text-white py-6 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">

@@ -11,23 +11,22 @@ const RestaurantMenu: React.FC = () => {
   const [restaurant, setRestaurant] = useState(id ? getRestaurantById(id) : undefined);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
+
   useEffect(() => {
     if (id) {
       const restaurantData = getRestaurantById(id);
       setRestaurant(restaurantData);
-      
+
       const items = getMenuItemsByRestaurantId(id);
       setMenuItems(items);
-      
-      // Define a categoria inicialmente selecionada como a primeira
+
       if (items.length > 0) {
         const categories = [...new Set(items.map(item => item.category))];
         setSelectedCategory(categories[0]);
       }
     }
   }, [id]);
-  
+
   if (!restaurant) {
     return (
       <div>
@@ -41,30 +40,28 @@ const RestaurantMenu: React.FC = () => {
       </div>
     );
   }
-  
-  // Obter categorias únicas
+
   const categories = [...new Set(menuItems.map(item => item.category))];
-  
-  // Filtrar itens do menu por categoria selecionada
-  const filteredItems = selectedCategory 
+
+  const filteredItems = selectedCategory
     ? menuItems.filter(item => item.category === selectedCategory)
     : menuItems;
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
           <span>Voltar para restaurantes</span>
         </Link>
-        
+
         <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
           <div className="relative h-48 md:h-64">
-            <img 
-              src={restaurant.image} 
-              alt={restaurant.name} 
+            <img
+              src={restaurant.image}
+              alt={restaurant.name}
               className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
@@ -75,18 +72,18 @@ const RestaurantMenu: React.FC = () => {
               <div className="p-6 text-white">
                 <h1 className="text-3xl font-bold">{restaurant.name}</h1>
                 <p className="mb-2">{restaurant.cuisine}</p>
-                
+
                 <div className="flex items-center text-sm">
                   <div className="flex items-center mr-4">
                     <Star className="h-4 w-4 text-foodfly-accent mr-1" fill="currentColor" />
                     <span>{restaurant.rating}</span>
                   </div>
-                  
+
                   <div className="flex items-center mr-4">
                     <Clock className="h-4 w-4 mr-1" />
                     <span>{restaurant.deliveryTime}</span>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-1" />
                     <span>{restaurant.address}</span>
@@ -96,7 +93,7 @@ const RestaurantMenu: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="flex flex-col md:flex-row gap-6">
           {/* Barra lateral de categorias */}
           <div className="md:w-1/4">
@@ -114,23 +111,23 @@ const RestaurantMenu: React.FC = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Itens do cardápio */}
           <div className="md:w-3/4">
             <h2 className="text-xl font-bold mb-4 text-foodfly-secondary">
               {selectedCategory}
             </h2>
-            
+
             <div className="space-y-4">
               {filteredItems.map(item => (
-                <FoodCard 
-                  key={item.id} 
-                  item={item} 
+                <FoodCard
+                  key={item.id}
+                  item={item}
                   restaurantName={restaurant.name}
                 />
               ))}
             </div>
-            
+
             {filteredItems.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-foodfly-gray-medium">Nenhum item encontrado nesta categoria.</p>
@@ -139,7 +136,7 @@ const RestaurantMenu: React.FC = () => {
           </div>
         </div>
       </main>
-      
+
       <footer className="bg-foodfly-secondary text-white py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">

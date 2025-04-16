@@ -18,8 +18,7 @@ const OrderTracking: React.FC = () => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>('confirmed');
   const [progress, setProgress] = useState(25);
   const [estimatedTime, setEstimatedTime] = useState(45);
-  
-  // Simular o progresso do rastreamento do pedido
+
   useEffect(() => {
     const interval = setInterval(() => {
       setEstimatedTime(prev => {
@@ -29,7 +28,7 @@ const OrderTracking: React.FC = () => {
         }
         return prev - 1;
       });
-      
+
       if (estimatedTime <= 35 && currentStatus === 'confirmed') {
         setCurrentStatus('preparing');
         setProgress(50);
@@ -41,27 +40,25 @@ const OrderTracking: React.FC = () => {
         setProgress(100);
       }
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [currentStatus, estimatedTime]);
-  
-  // Obter índice do passo atual
+
   const currentStepIndex = steps.findIndex(step => step.id === currentStatus);
-  
-  // Formatar exibição do tempo
+
   const formatTime = (minutes: number): string => {
     if (minutes < 1) return 'Menos de um minuto';
     if (minutes === 1) return '1 minuto';
     return `${minutes} minutos`;
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Rastreamento do Pedido</h1>
-        
+
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-xl font-bold text-foodfly-secondary">Pedido #FD38291</h2>
@@ -69,7 +66,7 @@ const OrderTracking: React.FC = () => {
               {currentStatus === 'delivered' ? 'Entregue' : 'Em Andamento'}
             </span>
           </div>
-          
+
           <div className="mb-8">
             <div className="flex justify-between mb-2">
               <span className="text-sm text-foodfly-gray-medium">Progresso</span>
@@ -77,26 +74,26 @@ const OrderTracking: React.FC = () => {
             </div>
             <Progress value={progress} className="h-2" />
           </div>
-          
+
           {currentStatus !== 'delivered' && (
             <div className="p-4 bg-foodfly-primary/10 rounded-lg mb-8">
               <h3 className="font-medium text-foodfly-secondary mb-1">Tempo Estimado de Entrega</h3>
               <p className="text-foodfly-primary text-2xl font-bold">{formatTime(estimatedTime)}</p>
             </div>
           )}
-          
+
           <div className="space-y-8">
             {steps.map((step, index) => {
               const isCompleted = index <= currentStepIndex;
               const isCurrent = index === currentStepIndex;
-              
+
               return (
                 <div key={step.id} className="flex items-start">
                   <div className={`relative flex items-center justify-center w-12 h-12 rounded-full mr-4 ${
                     isCompleted ? 'bg-foodfly-primary text-white' : 'bg-foodfly-gray-light text-foodfly-gray-medium'
                   }`}>
                     <step.icon className="h-6 w-6" />
-                    
+
                     {/* Linha conectora */}
                     {index < steps.length - 1 && (
                       <div className={`absolute top-12 left-1/2 w-0.5 h-16 -translate-x-1/2 ${
@@ -104,7 +101,7 @@ const OrderTracking: React.FC = () => {
                       }`} />
                     )}
                   </div>
-                  
+
                   <div className="flex-1">
                     <div className="flex justify-between">
                       <h3 className={`font-bold ${
@@ -112,14 +109,14 @@ const OrderTracking: React.FC = () => {
                       }`}>
                         {step.label}
                       </h3>
-                      
+
                       <span className={`text-sm ${
                         isCompleted ? 'text-foodfly-secondary' : 'text-foodfly-gray-medium'
                       }`}>
                         {isCompleted ? step.time : ''}
                       </span>
                     </div>
-                    
+
                     {isCurrent && currentStatus !== 'delivered' && (
                       <p className="text-sm text-foodfly-primary mt-1">
                         {currentStatus === 'confirmed' && 'O restaurante está confirmando seu pedido'}
@@ -127,7 +124,7 @@ const OrderTracking: React.FC = () => {
                         {currentStatus === 'delivering' && 'O entregador está a caminho da sua localização'}
                       </p>
                     )}
-                    
+
                     {currentStatus === 'delivered' && index === steps.length - 1 && (
                       <p className="text-sm text-green-600 mt-1">
                         Seu pedido foi entregue. Bom apetite!
@@ -138,7 +135,7 @@ const OrderTracking: React.FC = () => {
               );
             })}
           </div>
-          
+
           {currentStatus === 'delivered' && (
             <div className="mt-8 pt-6 border-t border-gray-200">
               <h3 className="font-bold text-foodfly-secondary mb-4">Como foi seu pedido?</h3>
@@ -149,7 +146,7 @@ const OrderTracking: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <div className="text-center">
           <Link to="/">
             <Button variant="outline" className="flex items-center">
@@ -159,7 +156,7 @@ const OrderTracking: React.FC = () => {
           </Link>
         </div>
       </main>
-      
+
       <footer className="bg-foodfly-secondary text-white py-6 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">

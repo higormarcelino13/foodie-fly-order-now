@@ -33,7 +33,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se o usuário está no localStorage
     const storedUser = localStorage.getItem('foodiefly_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -44,10 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
-      // Simulação de login - em produção isso seria uma API real
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simular usuário de teste - em produção verifique credenciais na API
+
       if (email === 'teste@exemplo.com' && password === 'senha123') {
         const loggedUser = {
           id: '1',
@@ -70,18 +67,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loginWithSocial = async (provider: 'facebook' | 'google'): Promise<boolean> => {
     try {
       setLoading(true);
-      // Simulação de login social - em produção isso seria integrado com SDKs reais
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const providerName = provider === 'facebook' ? 'Facebook' : 'Google';
-      
+
       const loggedUser = {
         id: provider === 'facebook' ? 'fb123' : 'g456',
         name: `Usuário ${providerName}`,
         email: `usuario.${provider}@exemplo.com`,
         photoUrl: 'https://placehold.co/100x100'
       };
-      
+
       setUser(loggedUser);
       localStorage.setItem('foodiefly_user', JSON.stringify(loggedUser));
       return true;
@@ -96,15 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
-      // Simulação de registro - em produção isso seria uma API real
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       const newUser = {
         id: Date.now().toString(),
         name,
         email
       };
-      
+
       setUser(newUser);
       localStorage.setItem('foodiefly_user', JSON.stringify(newUser));
       return true;
