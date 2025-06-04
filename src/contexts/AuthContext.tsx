@@ -21,21 +21,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Clear session on mount
+  // Clear session on mount in production
   useEffect(() => {
-    const clearSession = async () => {
-      try {
-        await supabase.auth.signOut()
-        localStorage.removeItem('foodfly-session')
-        localStorage.removeItem('foodfly-user')
-        setUser(null)
-        setSession(null)
-      } catch (error) {
-        console.error('Error clearing session:', error)
+    const isProduction = import.meta.env.PROD
+    if (isProduction) {
+      const clearSession = async () => {
+        try {
+          await supabase.auth.signOut()
+          setUser(null)
+          setSession(null)
+        } catch (error) {
+          console.error('Error clearing session:', error)
+        }
       }
+      clearSession()
     }
-
-    clearSession()
   }, [])
 
   useEffect(() => {
@@ -134,10 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(profile as DatabaseUser)
       }
 
-      // Save session to localStorage
-      localStorage.setItem('foodfly-session', JSON.stringify(data.session))
-      localStorage.setItem('foodfly-user', JSON.stringify(profile))
-
       toast.success('Login realizado com sucesso!')
     } catch (error: any) {
       console.error('Error signing in:', error)
@@ -191,10 +187,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true)
       const { error } = await supabase.auth.signOut()
       if (error) throw error
-
-      // Clear session and user from localStorage
-      localStorage.removeItem('foodfly-session')
-      localStorage.removeItem('foodfly-user')
 
       setUser(null)
       setSession(null)
