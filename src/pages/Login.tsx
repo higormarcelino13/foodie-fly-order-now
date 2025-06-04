@@ -1,176 +1,134 @@
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'sonner'
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Facebook, Mail } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { toast } from 'sonner';
-import Header from '@/components/Header';
+export function Login() {
+  const navigate = useNavigate()
+  const { signIn, user, isLoading: authLoading } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
 
-const loginSchema = z.object({
-  email: z.string()
-    .min(1, { message: "E-mail é obrigatório" })
-    .email({ message: "E-mail inválido" }),
-  password: z.string()
-    .min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
-});
-
-const Login = () => {
-  const { login, loginWithSocial, loading } = useAuth();
-  const navigate = useNavigate();
-  const [loggingIn, setLoggingIn] = useState(false);
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    setLoggingIn(true);
-    try {
-      const success = await login(values.email, values.password);
-      if (success) {
-        toast.success("Login realizado com sucesso!");
-        navigate('/');
-      } else {
-        toast.error("E-mail ou senha incorretos");
-      }
-    } catch (error) {
-      toast.error("Erro ao fazer login. Tente novamente.");
-    } finally {
-      setLoggingIn(false);
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/', { replace: true })
     }
-  };
+  }, [user, authLoading, navigate])
 
-  const handleSocialLogin = async (provider: 'facebook' | 'google') => {
-    setLoggingIn(true);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsLoading(true)
+
     try {
-      const success = await loginWithSocial(provider);
-      if (success) {
-        toast.success(`Login com ${provider === 'facebook' ? 'Facebook' : 'Google'} realizado com sucesso!`);
-        navigate('/');
+      await signIn(formData.email, formData.password)
+      // O redirecionamento será feito pelo useEffect quando o user for atualizado
+    } catch (error: any) {
+      console.error('Error signing in:', error)
+      if (error.message.includes('Email not confirmed')) {
+        toast.error('Por favor, verifique seu email para confirmar sua conta antes de fazer login.')
+      } else if (error.message.includes('Invalid login credentials')) {
+        toast.error('Email ou senha inválidos. Por favor, tente novamente.')
       } else {
-        toast.error(`Erro ao fazer login com ${provider === 'facebook' ? 'Facebook' : 'Google'}`);
+        toast.error('Erro ao fazer login. Tente novamente.')
       }
-    } catch (error) {
-      toast.error("Erro ao fazer login social. Tente novamente.");
     } finally {
-      setLoggingIn(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-          <div className="text-center">
-            <h2 className="mt-6 text-3xl font-extrabold text-foodfly-secondary">
-              Entrar na sua conta
-            </h2>
-            <p className="mt-2 text-sm text-foodfly-gray-medium">
-              Ou{' '}
-              <Link to="/cadastro" className="font-medium text-foodfly-primary hover:text-foodfly-primary/80">
-                criar uma nova conta
-              </Link>
-            </p>
-          </div>
-          
-          <div className="mt-8 space-y-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-mail</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Seu e-mail" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Senha</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Sua senha" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={loggingIn || loading}
-                >
-                  {loggingIn ? "Entrando..." : "Entrar"}
-                </Button>
-              </form>
-            </Form>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-foodfly-gray-medium">
-                  Ou continue com
-                </span>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => handleSocialLogin('facebook')}
-                disabled={loggingIn || loading}
-              >
-                <Facebook className="mr-2 h-4 w-4" />
-                Facebook
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => handleSocialLogin('google')}
-                disabled={loggingIn || loading}
-              >
-                <Mail className="mr-2 h-4 w-4" />
-                Google
-              </Button>
-            </div>
-          </div>
+  // Mostrar loading enquanto verifica o estado de autenticação
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-foodfly-light p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foodfly-primary"></div>
+          <p className="text-foodfly-secondary">Carregando...</p>
         </div>
       </div>
-    </div>
-  );
-};
+    )
+  }
 
-export default Login;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-foodfly-light p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center text-foodfly-secondary">
+            Login
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="seu@email.com"
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Sua senha"
+                disabled={isLoading}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Entrando...
+                </div>
+              ) : (
+                'Entrar'
+              )}
+            </Button>
+
+            <p className="text-center text-sm text-foodfly-gray-medium">
+              Não tem uma conta?{' '}
+              <Link to="/register" className="text-foodfly-primary hover:underline">
+                Criar conta
+              </Link>
+            </p>
+
+            <p className="text-center text-sm text-foodfly-gray-medium">
+              <Link to="/forgot-password" className="text-foodfly-primary hover:underline">
+                Esqueceu sua senha?
+              </Link>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

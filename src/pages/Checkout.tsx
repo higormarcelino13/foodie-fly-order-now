@@ -1,135 +1,89 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Header from '@/components/Header';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronLeft, CreditCard, MapPin, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-interface FormData {
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  zipCode: string;
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvc: string;
-  notes: string;
-}
+type PaymentMethod = 'credit' | 'debit' | 'pix';
 
-interface FormErrors {
-  [key: string]: string;
-}
-
-const Checkout: React.FC = () => {
-  const { cartItems, getCartTotal, clearCart } = useCart();
+export function Checkout() {
+  const cart = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<FormData>({
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvc: '',
-    notes: ''
-  });
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Form states
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCVC, setCardCVC] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryInstructions, setDeliveryInstructions] = useState('');
 
   React.useEffect(() => {
-    if (cartItems.length === 0) {
+    if (cart.items.length === 0) {
       navigate('/');
     }
-  }, [cartItems, navigate]);
+  }, [cart.items, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const formattedValue = value.replace(/(\d{4})/g, '$1 ').trim();
+    setCardNumber(formattedValue);
+  };
 
-    if (formErrors[name]) {
-      setFormErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
+  const handleCardExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 4) {
+      const formattedValue = value.replace(/(\d{2})(\d{0,2})/, '$1/$2');
+      setCardExpiry(formattedValue);
     }
   };
 
-  const validateForm = (): boolean => {
-    const errors: FormErrors = {};
-
-    const requiredFields = ['fullName', 'email', 'phone', 'address', 'city', 'zipCode', 'cardNumber', 'cardExpiry', 'cardCvc'];
-    requiredFields.forEach(field => {
-      if (!formData[field as keyof FormData]) {
-        errors[field] = 'Este campo é obrigatório';
-      }
-    });
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
-      errors.email = 'Por favor, insira um endereço de e-mail válido';
-    }
-
-    const phoneRegex = /^\d{10}$/;
-    if (formData.phone && !phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      errors.phone = 'Por favor, insira um número de telefone válido com 10 dígitos';
-    }
-
-    const cardNumberRegex = /^\d{16}$/;
-    if (formData.cardNumber && !cardNumberRegex.test(formData.cardNumber.replace(/\D/g, ''))) {
-      errors.cardNumber = 'Por favor, insira um número de cartão válido com 16 dígitos';
-    }
-
-    const cardExpiryRegex = /^(0[1-9]|1[0-2])\/([0-9]{2})$/;
-    if (formData.cardExpiry && !cardExpiryRegex.test(formData.cardExpiry)) {
-      errors.cardExpiry = 'Por favor, insira uma data de validade válida (MM/AA)';
-    }
-
-    const cardCvcRegex = /^\d{3,4}$/;
-    if (formData.cardCvc && !cardCvcRegex.test(formData.cardCvc)) {
-      errors.cardCvc = 'Por favor, insira um código CVC válido';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsProcessing(true);
 
-    if (!validateForm()) {
-      toast.error("Por favor, corrija os erros no formulário");
-      return;
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Simulate successful payment
+      toast.success('Pedido realizado com sucesso!');
+      cart.clearCart();
+      navigate('/order-success');
+    } catch (error) {
+      toast.error('Erro ao processar pagamento. Tente novamente.');
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      toast.success("Pedido realizado com sucesso!");
-      clearCart();
-      navigate('/tracking');
-      setIsSubmitting(false);
-    }, 2000);
   };
 
-  const subtotal = getCartTotal();
+  const subtotal = cart.getCartTotal();
   const deliveryFee = 2.99;
   const serviceFee = 1.99;
   const total = subtotal + deliveryFee + serviceFee;
 
+  if (cart.items.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Seu carrinho está vazio</h1>
+        <Button onClick={() => navigate('/')}>Voltar para a página inicial</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <main className="flex-1 container mx-auto px-4 py-8">
         <Link to="/cart" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
@@ -138,329 +92,162 @@ const Checkout: React.FC = () => {
 
         <h1 className="text-3xl font-bold text-foodfly-secondary mb-6">Finalizar Pedido</h1>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Formulário de Checkout */}
-          <div className="lg:w-2/3">
-            <form onSubmit={handleSubmit}>
-              {/* Informações de Entrega */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div className="flex items-center mb-4">
-                  <MapPin className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Entrega</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label htmlFor="fullName" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Nome Completo
-                    </label>
-                    <Input
-                      id="fullName"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      className={formErrors.fullName ? 'border-red-500' : ''}
-                    />
-                    {formErrors.fullName && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.fullName}
-                      </p>
-                    )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Formulário de Pagamento */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações de Pagamento</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={(value) => setPaymentMethod(value as PaymentMethod)}
+                      className="flex flex-col space-y-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="credit" id="credit" />
+                        <Label htmlFor="credit">Cartão de Crédito</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="debit" id="debit" />
+                        <Label htmlFor="debit">Cartão de Débito</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pix" id="pix" />
+                        <Label htmlFor="pix">PIX</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
 
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      E-mail
-                    </label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className={formErrors.email ? 'border-red-500' : ''}
-                    />
-                    {formErrors.email && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.email}
-                      </p>
-                    )}
-                  </div>
+                  {paymentMethod !== 'pix' && (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="cardNumber">Número do Cartão</Label>
+                        <Input
+                          id="cardNumber"
+                          value={cardNumber}
+                          onChange={handleCardNumberChange}
+                          placeholder="1234 5678 9012 3456"
+                          maxLength={19}
+                          required
+                        />
+                      </div>
 
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Telefone
-                    </label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className={formErrors.phone ? 'border-red-500' : ''}
-                    />
-                    {formErrors.phone && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.phone}
-                      </p>
-                    )}
-                  </div>
+                      <div>
+                        <Label htmlFor="cardName">Nome no Cartão</Label>
+                        <Input
+                          id="cardName"
+                          value={cardName}
+                          onChange={(e) => setCardName(e.target.value)}
+                          placeholder="Nome como está no cartão"
+                          required
+                        />
+                      </div>
 
-                  <div className="md:col-span-2">
-                    <label htmlFor="address" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Endereço de Entrega
-                    </label>
-                    <Input
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      className={formErrors.address ? 'border-red-500' : ''}
-                    />
-                    {formErrors.address && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.address}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Cidade
-                    </label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      className={formErrors.city ? 'border-red-500' : ''}
-                    />
-                    {formErrors.city && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.city}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="zipCode" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      CEP
-                    </label>
-                    <Input
-                      id="zipCode"
-                      name="zipCode"
-                      value={formData.zipCode}
-                      onChange={handleChange}
-                      className={formErrors.zipCode ? 'border-red-500' : ''}
-                    />
-                    {formErrors.zipCode && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.zipCode}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label htmlFor="notes" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Observações de Entrega (opcional)
-                    </label>
-                    <Textarea
-                      id="notes"
-                      name="notes"
-                      placeholder="Ex.: Número do apartamento, código do portão ou instruções de entrega"
-                      value={formData.notes}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Informações de Pagamento */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div className="flex items-center mb-4">
-                  <CreditCard className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Informações de Pagamento</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label htmlFor="cardNumber" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Número do Cartão
-                    </label>
-                    <Input
-                      id="cardNumber"
-                      name="cardNumber"
-                      placeholder="1234 5678 9012 3456"
-                      value={formData.cardNumber}
-                      onChange={handleChange}
-                      className={formErrors.cardNumber ? 'border-red-500' : ''}
-                    />
-                    {formErrors.cardNumber && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.cardNumber}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="cardExpiry" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      Data de Validade
-                    </label>
-                    <Input
-                      id="cardExpiry"
-                      name="cardExpiry"
-                      placeholder="MM/AA"
-                      value={formData.cardExpiry}
-                      onChange={handleChange}
-                      className={formErrors.cardExpiry ? 'border-red-500' : ''}
-                    />
-                    {formErrors.cardExpiry && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.cardExpiry}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="cardCvc" className="block text-sm font-medium text-foodfly-secondary mb-1">
-                      CVC
-                    </label>
-                    <Input
-                      id="cardCvc"
-                      name="cardCvc"
-                      placeholder="123"
-                      value={formData.cardCvc}
-                      onChange={handleChange}
-                      className={formErrors.cardCvc ? 'border-red-500' : ''}
-                    />
-                    {formErrors.cardCvc && (
-                      <p className="text-red-500 text-xs mt-1 flex items-center">
-                        <AlertCircle className="h-3 w-3 mr-1" />
-                        {formErrors.cardCvc}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Tempo de Entrega */}
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div className="flex items-center mb-4">
-                  <Clock className="h-5 w-5 text-foodfly-primary mr-2" />
-                  <h2 className="text-xl font-bold text-foodfly-secondary">Tempo de Entrega</h2>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 border border-foodfly-primary rounded-lg p-4 text-center bg-foodfly-primary/5">
-                    <p className="font-medium">O mais rápido possível</p>
-                    <p className="text-sm text-foodfly-gray-medium">30-45 min</p>
-                  </div>
-
-                  <div className="flex-1 border border-gray-200 rounded-lg p-4 text-center">
-                    <p className="font-medium">Agendar para depois</p>
-                    <p className="text-sm text-foodfly-gray-medium">Escolha um horário</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:hidden mb-6">
-                <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between">
-                      <span className="text-foodfly-gray-medium">Subtotal</span>
-                      <span>R$ {subtotal.toFixed(2)}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
-                      <span>R$ {deliveryFee.toFixed(2)}</span>
-                    </div>
-
-                    <div className="flex justify-between">
-                      <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
-                      <span>R$ {serviceFee.toFixed(2)}</span>
-                    </div>
-
-                    <div className="border-t pt-3 mt-3">
-                      <div className="flex justify-between font-bold">
-                        <span>Total</span>
-                        <span>R$ {total.toFixed(2)}</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="cardExpiry">Validade</Label>
+                          <Input
+                            id="cardExpiry"
+                            value={cardExpiry}
+                            onChange={handleCardExpiryChange}
+                            placeholder="MM/AA"
+                            maxLength={5}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="cardCVC">CVC</Label>
+                          <Input
+                            id="cardCVC"
+                            value={cardCVC}
+                            onChange={(e) => setCardCVC(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                            placeholder="123"
+                            maxLength={3}
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  )}
 
-              <Button
-                type="submit"
-                className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90 lg:hidden"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Processando...' : `Pagar R$ ${total.toFixed(2)}`}
-              </Button>
-            </form>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="deliveryAddress">Endereço de Entrega</Label>
+                      <Input
+                        id="deliveryAddress"
+                        value={deliveryAddress}
+                        onChange={(e) => setDeliveryAddress(e.target.value)}
+                        placeholder="Rua, número, complemento, bairro"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="deliveryInstructions">Instruções para Entrega</Label>
+                      <Input
+                        id="deliveryInstructions"
+                        value={deliveryInstructions}
+                        onChange={(e) => setDeliveryInstructions(e.target.value)}
+                        placeholder="Ex: Apartamento 123, tocar a campainha"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? 'Processando...' : 'Finalizar Pedido'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Resumo do Pedido */}
-          <div className="lg:w-1/3 hidden lg:block">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-foodfly-secondary mb-4">Resumo do Pedido</h2>
-
-              <div className="mb-4">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex justify-between py-2">
-                    <div className="flex items-center">
-                      <span className="bg-foodfly-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center mr-2">
-                        {item.quantity}
-                      </span>
-                      <span className="text-foodfly-secondary">{item.name}</span>
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumo do Pedido</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {cart.items.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-sm text-foodfly-gray-medium">
+                          {item.quantity}x R$ {item.price.toFixed(2)}
+                        </p>
+                      </div>
+                      <p className="font-medium">
+                        R$ {(item.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
-                    <span>R$ {(item.price * item.quantity).toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
+                  ))}
 
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-foodfly-gray-medium">Subtotal</span>
-                  <span>R$ {subtotal.toFixed(2)}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-foodfly-gray-medium">Taxa de Entrega</span>
-                  <span>R$ {deliveryFee.toFixed(2)}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-foodfly-gray-medium">Taxa de Serviço</span>
-                  <span>R$ {serviceFee.toFixed(2)}</span>
-                </div>
-
-                <div className="border-t pt-3 mt-3">
-                  <div className="flex justify-between font-bold">
-                    <span>Total</span>
-                    <span>R$ {total.toFixed(2)}</span>
+                  <div className="border-t pt-4 space-y-2">
+                    <div className="flex justify-between">
+                      <span>Subtotal</span>
+                      <span>R$ {subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taxa de Entrega</span>
+                      <span>R$ {deliveryFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total</span>
+                      <span>R$ {total.toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-foodfly-primary hover:bg-foodfly-primary/90"
-                disabled={isSubmitting}
-                onClick={handleSubmit}
-              >
-                {isSubmitting ? 'Processando...' : `Pagar R$ ${total.toFixed(2)}`}
-              </Button>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
@@ -489,6 +276,4 @@ const Checkout: React.FC = () => {
       </footer>
     </div>
   );
-};
-
-export default Checkout;
+}

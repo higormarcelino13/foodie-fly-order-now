@@ -1,134 +1,233 @@
+import { createContext, useContext, useEffect, useState } from 'react'
+import { supabase, User as DatabaseUser } from '@/lib/supabase'
+import { Session, User as SupabaseAuthUser } from '@supabase/supabase-js'
+import { authService } from '../lib/services/auth'
+import type { SignUpInput, SignInInput, UpdateProfileInput } from '../lib/validations/auth'
+import { toast } from 'sonner'
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+interface AuthContextType {
+  user: DatabaseUser | null
+  session: Session | null
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (data: { name: string; email: string; password: string; phone?: string }) => Promise<void>
+  signOut: () => Promise<void>
+  isLoading: boolean
+}
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  photoUrl?: string;
-};
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-type AuthContextType = {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  loginWithSocial: (provider: 'facebook' | 'google') => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  loading: boolean;
-};
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<DatabaseUser | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+  // Clear session on mount
+  useEffect(() => {
+    const clearSession = async () => {
+      try {
+        await supabase.auth.signOut()
+        localStorage.removeItem('foodfly-session')
+        localStorage.removeItem('foodfly-user')
+        setUser(null)
+        setSession(null)
+      } catch (error) {
+        console.error('Error clearing session:', error)
+      }
+    }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
-  return context;
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+    clearSession()
+  }, [])
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('foodiefly_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
+    let mounted = true
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      if (email === 'teste@exemplo.com' && password === 'senha123') {
-        const loggedUser = {
-          id: '1',
-          name: 'Usuário Teste',
-          email: email
-        };
-        setUser(loggedUser);
-        localStorage.setItem('foodiefly_user', JSON.stringify(loggedUser));
-        return true;
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setSession(session)
+        if (session?.user) {
+          // Fetch user profile
+          supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+            .then(({ data: profile, error }) => {
+              if (error) {
+                console.error('Error fetching user profile:', error)
+                setUser(null)
+              } else if (profile) {
+                setUser(profile as DatabaseUser)
+              }
+              setIsLoading(false)
+            })
+        } else {
+          setUser(null)
+          setIsLoading(false)
+        }
       }
-      return false;
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+    })
 
-  const loginWithSocial = async (provider: 'facebook' | 'google'): Promise<boolean> => {
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (mounted) {
+        setSession(session)
+        if (session?.user) {
+          // Fetch user profile
+          const { data: profile, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+
+          if (error) {
+            console.error('Error fetching user profile:', error)
+            setUser(null)
+          } else if (profile) {
+            setUser(profile as DatabaseUser)
+          }
+        } else {
+          setUser(null)
+        }
+        setIsLoading(false)
+      }
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsLoading(true)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
 
-      const providerName = provider === 'facebook' ? 'Facebook' : 'Google';
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          throw new Error('Por favor, verifique seu email para confirmar sua conta antes de fazer login.')
+        }
+        throw error
+      }
 
-      const loggedUser = {
-        id: provider === 'facebook' ? 'fb123' : 'g456',
-        name: `Usuário ${providerName}`,
-        email: `usuario.${provider}@exemplo.com`,
-        photoUrl: 'https://placehold.co/100x100'
-      };
+      if (!data.user?.email_confirmed_at) {
+        throw new Error('Por favor, verifique seu email para confirmar sua conta antes de fazer login.')
+      }
 
-      setUser(loggedUser);
-      localStorage.setItem('foodiefly_user', JSON.stringify(loggedUser));
-      return true;
-    } catch (error) {
-      console.error(`Erro ao fazer login com ${provider}:`, error);
-      return false;
+      // Fetch user profile after successful login
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError)
+        setUser(null)
+      } else if (profile) {
+        setUser(profile as DatabaseUser)
+      }
+
+      // Save session to localStorage
+      localStorage.setItem('foodfly-session', JSON.stringify(data.session))
+      localStorage.setItem('foodfly-user', JSON.stringify(profile))
+
+      toast.success('Login realizado com sucesso!')
+    } catch (error: any) {
+      console.error('Error signing in:', error)
+      toast.error(error.message || 'Erro ao fazer login. Verifique suas credenciais.')
+      throw error
     } finally {
-      setLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const signUp = async (data: { name: string; email: string; password: string; phone?: string }) => {
     try {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsLoading(true)
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+            phone: data.phone,
+          }
+        }
+      })
 
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email
-      };
+      if (signUpError) throw signUpError
 
-      setUser(newUser);
-      localStorage.setItem('foodiefly_user', JSON.stringify(newUser));
-      return true;
-    } catch (error) {
-      console.error('Erro ao registrar:', error);
-      return false;
+      // Create profile
+      const { error: profileError } = await supabase.from('users').insert([
+        {
+          id: (await supabase.auth.getUser()).data.user?.id,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+        },
+      ])
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError)
+        throw new Error('Erro ao criar perfil do usuário.')
+      }
+    } catch (error: any) {
+      console.error('Error signing up:', error)
+      throw error
     } finally {
-      setLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('foodiefly_user');
-  };
+  const signOut = async () => {
+    try {
+      setIsLoading(true)
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+
+      // Clear session and user from localStorage
+      localStorage.removeItem('foodfly-session')
+      localStorage.removeItem('foodfly-user')
+
+      setUser(null)
+      setSession(null)
+      toast.success('Logout realizado com sucesso!')
+    } catch (error: any) {
+      console.error('Error signing out:', error)
+      toast.error('Erro ao fazer logout.')
+      throw error
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const value = {
+    user,
+    session,
+    signIn,
+    signUp,
+    signOut,
+    isLoading,
+  }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        login,
-        loginWithSocial,
-        register,
-        logout,
-        loading
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}

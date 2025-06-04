@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export interface FoodItem {
@@ -12,115 +12,111 @@ export interface FoodItem {
   quantity: number;
 }
 
-interface CartContextType {
-  cartItems: FoodItem[];
-  addToCart: (item: FoodItem) => void;
-  removeFromCart: (itemId: string) => void;
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  restaurantId: string;
+  restaurantName: string;
+  image: string;
+  notes?: string;
+};
+
+type CartContextType = {
+  items: CartItem[];
+  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  getCartTotal: () => number;
   getCartCount: () => number;
-}
+  getCartTotal: () => number;
+};
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<FoodItem[]>([]);
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
 
   // Load cart from localStorage on component mount
   useEffect(() => {
     const savedCart = localStorage.getItem('foodfly-cart');
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        setItems(JSON.parse(savedCart));
       } catch (error) {
         console.error('Failed to parse cart from localStorage', error);
+        localStorage.removeItem('foodfly-cart');
       }
     }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('foodfly-cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    localStorage.setItem('foodfly-cart', JSON.stringify(items));
+  }, [items]);
 
-  const addToCart = (newItem: FoodItem) => {
-    setCartItems((prevItems) => {
-      // Check if the item is already in the cart
-      const existingItemIndex = prevItems.findIndex(item => item.id === newItem.id);
-      
-      if (existingItemIndex !== -1) {
-        // If item exists, update its quantity
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + newItem.quantity
-        };
-        toast.success(`Added ${newItem.name} to cart`);
-        return updatedItems;
-      } else {
-        // Otherwise, add the new item
-        toast.success(`Added ${newItem.name} to cart`);
-        return [...prevItems, newItem];
+  const addItem = useCallback((item: Omit<CartItem, 'quantity'>) => {
+    setItems(currentItems => {
+      const existingItem = currentItems.find(i => i.id === item.id);
+
+      if (existingItem) {
+        return currentItems.map(i =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
       }
-    });
-  };
 
-  const removeFromCart = (itemId: string) => {
-    setCartItems((prevItems) => {
-      const itemToRemove = prevItems.find(item => item.id === itemId);
-      if (itemToRemove) {
-        toast.success(`Removed ${itemToRemove.name} from cart`);
-      }
-      return prevItems.filter(item => item.id !== itemId);
+      return [...currentItems, { ...item, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const updateQuantity = (itemId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(itemId);
+  const removeItem = useCallback((itemId: string) => {
+    setItems(currentItems => currentItems.filter(item => item.id !== itemId));
+  }, []);
+
+  const updateQuantity = useCallback((itemId: string, quantity: number) => {
+    if (quantity < 1) {
+      removeItem(itemId);
       return;
     }
 
-    setCartItems((prevItems) => 
-      prevItems.map(item => 
+    setItems(currentItems =>
+      currentItems.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       )
     );
+  }, [removeItem]);
+
+  const clearCart = useCallback(() => {
+    setItems([]);
+    localStorage.removeItem('foodfly-cart');
+  }, []);
+
+  const getCartCount = useCallback(() => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  }, [items]);
+
+  const getCartTotal = useCallback(() => {
+    return items.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [items]);
+
+  const value = {
+    items,
+    addItem,
+    removeItem,
+    updateQuantity,
+    clearCart,
+    getCartCount,
+    getCartTotal,
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-    toast.success('Cart cleared');
-  };
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
 
-  const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const getCartCount = () => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
-
-  return (
-    <CartContext.Provider value={{
-      cartItems,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      getCartTotal,
-      getCartCount
-    }}>
-      {children}
-    </CartContext.Provider>
-  );
-};
-
-export const useCart = () => {
+export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
-};
+}

@@ -1,60 +1,84 @@
-import React, { useState } from 'react';
-import Header from '@/components/Header';
-import { restaurants } from '@/data/mockData';
-import RestaurantCard from '@/components/RestaurantCard';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { supabase, Restaurant } from '../lib/supabase'
+import Header from '../components/Header'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
-const cuisineTypes = ["Todos", "Americana", "Italiana", "Japonesa", "Mexicana", "Indiana"];
+export default function Index() {
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [loading, setLoading] = useState(true)
 
-const Index: React.FC = () => {
-  const [selectedCuisine, setSelectedCuisine] = useState("Todos");
+  useEffect(() => {
+    async function fetchRestaurants() {
+      try {
+        const { data, error } = await supabase
+          .from('restaurants')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-  const filteredRestaurants = selectedCuisine === "Todos" 
-    ? restaurants 
-    : restaurants.filter(restaurant => restaurant.cuisine === selectedCuisine);
+        if (error) {
+          console.error('Erro ao buscar restaurantes:', error)
+          return
+        }
+
+        setRestaurants(data || [])
+      } catch (error) {
+        console.error('Erro ao buscar restaurantes:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRestaurants()
+  }, [])
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <section className="mb-8">
-          <h1 className="text-3xl font-bold text-foodfly-secondary mb-2">Entrega de Comida</h1>
-          <p className="text-foodfly-gray-medium mb-6">Peça dos seus restaurantes favoritos</p>
-          
-          <div className="flex flex-wrap gap-2 mb-6">
-            {cuisineTypes.map(cuisine => (
-              <Button
-                key={cuisine}
-                variant={selectedCuisine === cuisine ? "default" : "outline"}
-                className={selectedCuisine === cuisine ? "bg-foodfly-primary" : ""}
-                onClick={() => setSelectedCuisine(cuisine)}
-              >
-                {cuisine}
-              </Button>
-            ))}
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRestaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          Restaurantes Disponíveis
+        </h1>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Carregando restaurantes...</p>
+          </div>
+        ) : restaurants.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Nenhum restaurante encontrado.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {restaurants.map((restaurant) => (
+              <Link
+                key={restaurant.id}
+                to={`/restaurant/${restaurant.id}`}
+                className="block"
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle>{restaurant.name}</CardTitle>
+                    <CardDescription>{restaurant.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p>
+                        <strong>Endereço:</strong> {restaurant.address}
+                      </p>
+                      <p>
+                        <strong>Telefone:</strong> {restaurant.phone}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
-          
-          {filteredRestaurants.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-foodfly-gray-medium">Nenhum restaurante encontrado para este tipo de culinária.</p>
-              <Button 
-                className="mt-4 bg-foodfly-primary hover:bg-foodfly-primary/90" 
-                onClick={() => setSelectedCuisine("Todos")}
-              >
-                Ver Todos os Restaurantes
-              </Button>
-            </div>
-          )}
-        </section>
+        )}
       </main>
-      
+
       <footer className="bg-foodfly-secondary text-white py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between">
@@ -78,7 +102,5 @@ const Index: React.FC = () => {
         </div>
       </footer>
     </div>
-  );
-};
-
-export default Index;
+  )
+}

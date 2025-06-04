@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Header from '@/components/Header';
-import FoodCard from '@/components/FoodCard';
-import { getRestaurantById, getMenuItemsByRestaurantId, MenuItem } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Clock, Star, MapPin, ChevronLeft } from 'lucide-react';
+import { getRestaurantById, getMenuItemsByRestaurantId, MenuItem } from '@/data/mockData';
+import { FoodCard } from '@/components/FoodCard';
 
-const RestaurantMenu: React.FC = () => {
+export function RestaurantMenu() {
   const { id } = useParams<{ id: string }>();
   const [restaurant, setRestaurant] = useState(id ? getRestaurantById(id) : undefined);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -30,7 +29,6 @@ const RestaurantMenu: React.FC = () => {
   if (!restaurant) {
     return (
       <div>
-        <Header />
         <div className="container mx-auto px-4 py-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Restaurante não encontrado</h2>
           <Link to="/">
@@ -48,47 +46,43 @@ const RestaurantMenu: React.FC = () => {
     : menuItems;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      <main className="flex-1 container mx-auto px-4 py-8">
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-8">
         <Link to="/" className="flex items-center text-foodfly-primary mb-4">
           <ChevronLeft className="h-5 w-5 mr-1" />
-          <span>Voltar para restaurantes</span>
+          <span>Voltar</span>
         </Link>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-          <div className="relative h-48 md:h-64">
-            <img
-              src={restaurant.image}
-              alt={restaurant.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Imagem+Restaurante";
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h1 className="text-3xl font-bold">{restaurant.name}</h1>
-                <p className="mb-2">{restaurant.cuisine}</p>
+        {/* Informações do Restaurante */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="md:w-1/3">
+              <img
+                src={restaurant.image}
+                alt={restaurant.name}
+                className="w-full h-48 object-cover rounded-lg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Restaurant+Image";
+                }}
+              />
+            </div>
 
-                <div className="flex items-center text-sm">
-                  <div className="flex items-center mr-4">
-                    <Star className="h-4 w-4 text-foodfly-accent mr-1" fill="currentColor" />
-                    <span>{restaurant.rating}</span>
-                  </div>
+            <div className="md:w-2/3">
+              <h1 className="text-3xl font-bold text-foodfly-secondary mb-2">{restaurant.name}</h1>
+              <p className="text-foodfly-gray-medium mb-4">{restaurant.cuisine}</p>
 
-                  <div className="flex items-center mr-4">
-                    <Clock className="h-4 w-4 mr-1" />
-                    <span>{restaurant.deliveryTime}</span>
-                  </div>
+              <div className="flex items-center text-foodfly-secondary mb-2">
+                <Star className="h-5 w-5 mr-1" fill="currentColor" />
+                <span className="font-medium">{restaurant.rating}</span>
+                <span className="mx-2">•</span>
+                <Clock className="h-5 w-5 mr-1" />
+                <span>{restaurant.deliveryTime}</span>
+              </div>
 
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span>{restaurant.address}</span>
-                  </div>
-                </div>
+              <div className="flex items-center text-foodfly-gray-medium">
+                <MapPin className="h-5 w-5 mr-1" />
+                <span>{restaurant.address}</span>
               </div>
             </div>
           </div>
@@ -135,32 +129,7 @@ const RestaurantMenu: React.FC = () => {
             )}
           </div>
         </div>
-      </main>
-
-      <footer className="bg-foodfly-secondary text-white py-6">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-4 md:mb-0">
-              <h2 className="font-bold text-xl mb-2">FoodieFly</h2>
-              <p className="text-sm text-foodfly-gray-light">Peça comida deliciosa online!</p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-2">Links Rápidos</h3>
-              <ul className="text-sm space-y-1">
-                <li><a href="#" className="hover:text-foodfly-primary">Sobre Nós</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Contato</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Termos de Serviço</a></li>
-                <li><a href="#" className="hover:text-foodfly-primary">Política de Privacidade</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-6 pt-6 border-t border-gray-700">
-            <p className="text-sm text-center">© {new Date().getFullYear()} FoodieFly. Todos os direitos reservados.</p>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   );
-};
-
-export default RestaurantMenu;
+}

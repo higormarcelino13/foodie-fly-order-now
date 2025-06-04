@@ -3,14 +3,15 @@ import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { MenuItem } from '@/data/mockData';
+import { toast } from 'sonner';
 
 interface FoodCardProps {
   item: MenuItem;
   restaurantName: string;
 }
 
-const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
-  const { addToCart } = useCart();
+export const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
 
   const incrementQuantity = () => {
@@ -24,22 +25,23 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
   };
 
   const handleAddToCart = () => {
-    addToCart({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      image: item.image,
-      restaurantId: item.restaurantId,
-      restaurantName,
-      quantity
-    });
-
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        restaurantId: item.restaurantId,
+        restaurantName,
+        image: item.image,
+        notes: item.description
+      });
+    }
+    toast.success(`${quantity}x ${item.name} adicionado ao carrinho!`);
     setQuantity(1);
   };
 
   return (
-    <div className="food-card bg-white">
+    <div className="food-card bg-white rounded-lg shadow-md overflow-hidden">
       <div className="flex flex-col md:flex-row">
         <div className="md:w-1/3 h-32 md:h-auto">
           <img
@@ -89,7 +91,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
                 size="sm"
                 onClick={handleAddToCart}
               >
-                Add
+                Adicionar
               </Button>
             </div>
           </div>
@@ -98,5 +100,3 @@ const FoodCard: React.FC<FoodCardProps> = ({ item, restaurantName }) => {
     </div>
   );
 };
-
-export default FoodCard;
