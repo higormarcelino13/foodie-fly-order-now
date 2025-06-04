@@ -30,11 +30,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await supabase.auth.signOut()
           setUser(null)
           setSession(null)
+          setIsLoading(false)
         } catch (error) {
           console.error('Error clearing session:', error)
+          setIsLoading(false)
         }
       }
       clearSession()
+    } else {
+      setIsLoading(false)
     }
   }, [])
 
@@ -61,6 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
               setIsLoading(false)
             })
+            .catch(() => {
+              setUser(null)
+              setIsLoading(false)
+            })
         } else {
           setUser(null)
           setIsLoading(false)
@@ -75,18 +83,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (mounted) {
         setSession(session)
         if (session?.user) {
-          // Fetch user profile
-          const { data: profile, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
+          try {
+            // Fetch user profile
+            const { data: profile, error } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
 
-          if (error) {
-            console.error('Error fetching user profile:', error)
+            if (error) {
+              console.error('Error fetching user profile:', error)
+              setUser(null)
+            } else if (profile) {
+              setUser(profile as DatabaseUser)
+            }
+          } catch (error) {
+            console.error('Error in auth state change:', error)
             setUser(null)
-          } else if (profile) {
-            setUser(profile as DatabaseUser)
           }
         } else {
           setUser(null)
