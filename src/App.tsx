@@ -22,9 +22,9 @@ function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <div className="min-h-screen bg-foodfly-light">
+          <div className="min-h-screen bg-background">
             <Header />
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-6 animate-fade-in">
               <Routes>
                 {/* Rotas públicas */}
                 <Route path="/" element={<Home />} />
@@ -70,11 +70,13 @@ function App() {
               position="bottom-center"
               toastOptions={{
                 style: {
-                  background: '#fff',
-                  color: '#333',
-                  border: '1px solid #e5e7eb',
+                  background: 'hsl(var(--card))',
+                  color: 'hsl(var(--card-foreground))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: 'var(--radius)',
+                  boxShadow: 'var(--shadow-soft)'
                 },
-                className: 'toast-notification',
+                className: 'toast-notification animate-slide-in',
               }}
             />
           </div>

@@ -1,83 +1,126 @@
-import { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { restaurants } from '@/data/mockData';
+import { RestaurantCard } from '../components/RestaurantCard';
+import { CategorySection } from '../components/CategorySection';
+import { restaurants } from '../data/restaurants';
 
-export function Home() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredRestaurants = restaurants.filter(restaurant =>
-    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+export const Home: React.FC = () => {
+  const featuredRestaurants = restaurants.slice(0, 4);
+  const popularRestaurants = restaurants.slice(4, 8);
+  const newRestaurants = restaurants.slice(8, 12);
+  const topRatedRestaurants = restaurants.slice(12, 16);
+  const nearbyRestaurants = restaurants.slice(16, 20);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-foodfly-secondary mb-4">
-          Bem-vindo ao FoodieFly
-        </h1>
-        <p className="text-lg text-foodfly-gray-medium mb-8">
-          Encontre os melhores restaurantes e peça sua comida favorita online.
-        </p>
-
-        {/* Barra de Pesquisa */}
-        <div className="relative mb-8">
-          <Input
-            type="text"
-            placeholder="Pesquisar restaurantes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foodfly-gray-medium h-4 w-4" />
+    <div className="space-y-16 py-8">
+      {/* Hero Section */}
+      <section className="relative bg-white py-32 overflow-hidden">
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-2xl mx-auto text-center space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-foodfly-secondary animate-fade-in">
+                FoodieFly
+              </h1>
+              <p className="text-xl md:text-2xl font-light text-foodfly-gray-medium max-w-xl mx-auto animate-fade-in-delay">
+                Sabores que voam até você
+              </p>
+            </div>
+            <p className="text-base text-foodfly-gray-medium max-w-lg mx-auto animate-fade-in-delay-2">
+              Descubra os melhores restaurantes da sua região e receba suas refeições favoritas em casa com apenas alguns cliques.
+            </p>
+            <div className="flex justify-center gap-6 pt-6 animate-fade-in-delay-2">
+              <button className="px-8 py-3 bg-foodfly-primary text-white rounded-full hover:bg-foodfly-accent transition-colors duration-300">
+                Começar Agora
+              </button>
+            </div>
+          </div>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent"></div>
+      </section>
 
-        {/* Lista de Restaurantes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRestaurants.map((restaurant) => (
-            <Link
-              key={restaurant.id}
-              to={`/restaurant/${restaurant.id}`}
-              className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-            >
-              <div className="h-48 relative">
-                <img
-                  src={restaurant.image}
-                  alt={restaurant.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://placehold.co/600x400/e2e8f0/64748b?text=Restaurant";
-                  }}
-                />
-                {!restaurant.isOpen && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <span className="text-white font-bold">Fechado</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-4">
-                <h2 className="text-xl font-bold text-foodfly-secondary mb-2">
-                  {restaurant.name}
-                </h2>
-                <p className="text-foodfly-gray-medium mb-2">{restaurant.cuisine}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="text-yellow-500 mr-1">★</span>
-                    <span className="font-medium">{restaurant.rating}</span>
-                  </div>
-                  <span className="text-foodfly-gray-medium">
-                    {restaurant.deliveryTime}
-                  </span>
-                </div>
-              </div>
-            </Link>
+      {/* Categories Section */}
+      <CategorySection />
+
+      {/* Featured Restaurants */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="section-title">Destaques</h2>
+          <p className="section-subtitle">Restaurantes em destaque da semana</p>
+        </div>
+        <div className="restaurant-grid">
+          {featuredRestaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* Popular Restaurants */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="section-title">Mais Populares</h2>
+          <p className="section-subtitle">Os restaurantes mais pedidos</p>
+        </div>
+        <div className="restaurant-grid">
+          {popularRestaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      </section>
+
+      {/* New Restaurants */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="section-title">Novidades</h2>
+          <p className="section-subtitle">Restaurantes recém-chegados</p>
+        </div>
+        <div className="restaurant-grid">
+          {newRestaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      </section>
+
+      {/* Top Rated Restaurants */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="section-title">Melhor Avaliados</h2>
+          <p className="section-subtitle">Restaurantes com as melhores avaliações</p>
+        </div>
+        <div className="restaurant-grid">
+          {topRatedRestaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      </section>
+
+      {/* Nearby Restaurants */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="section-title">Perto de Você</h2>
+          <p className="section-subtitle">Restaurantes próximos à sua localização</p>
+        </div>
+        <div className="restaurant-grid">
+          {nearbyRestaurants.map((restaurant) => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      </section>
+
+      {/* Download App Section */}
+      <section className="bg-primary/5 rounded-2xl p-8 text-center space-y-4">
+        <h2 className="text-2xl font-display font-semibold">Baixe nosso App</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Peça comida ainda mais rápido com nosso aplicativo. Disponível para iOS e Android.
+        </p>
+        <div className="flex justify-center gap-4">
+          <button className="btn-primary">
+            App Store
+          </button>
+          <button className="btn-secondary">
+            Google Play
+          </button>
+        </div>
+      </section>
     </div>
   );
-}
+};
